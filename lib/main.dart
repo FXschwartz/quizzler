@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 import 'quiz_brain.dart';
 
@@ -31,20 +32,28 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> {
   List<Icon> scoreKeeper = [];
 
-  void checkAnswer(bool userPickedAnswer) {
+  void checkAnswer(bool userPickedAnswer, context) {
     bool correctAnswer = quizBrain.getQuestionAnswer();
-    if (userPickedAnswer == correctAnswer) {
-      scoreKeeper.add(
-        Icon(Icons.check, color: Colors.green),
-      );
+    if (quizBrain.isFinished()) {
+      Alert(context: context, title: 'You\'ve completed the quiz').show();
+      setState(() {
+        quizBrain.resetQuiz();
+        scoreKeeper = [];
+      });
     } else {
-      scoreKeeper.add(
-        Icon(Icons.close, color: Colors.red),
-      );
+      setState(() {
+        if (userPickedAnswer == correctAnswer) {
+          scoreKeeper.add(
+            Icon(Icons.check, color: Colors.green),
+          );
+        } else {
+          scoreKeeper.add(
+            Icon(Icons.close, color: Colors.red),
+          );
+        }
+        quizBrain.nextQuestion();
+      });
     }
-    setState(() {
-      quizBrain.nextQuestion();
-    });
   }
 
   @override
@@ -83,7 +92,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                checkAnswer(true);
+                checkAnswer(true, context);
               },
             ),
           ),
@@ -101,7 +110,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                checkAnswer(false);
+                checkAnswer(false, context);
               },
             ),
           ),
